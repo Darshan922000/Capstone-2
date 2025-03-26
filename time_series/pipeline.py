@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 from datetime import timedelta
 import pickle
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, confusion_matrix, mean_absolute_percentage_error
+import mlflow
+import dagshub
+dagshub.init(repo_owner='Darshan922000', repo_name='Capstone-2', mlflow=True)
 
 def load_and_preprocess_data(filepath):
     """Load and preprocess the sales data"""
@@ -73,18 +76,21 @@ def train_forecast_model(data, forecast_horizon=7):
     test_pred = model.predict(X_test)
     
     # Calculate metrics
-    train_mae = mean_absolute_error(y_train, train_pred)
-    train_rmse = np.sqrt(mean_squared_error(y_train, train_pred))
-    
-    test_mae = mean_absolute_error(y_test, test_pred)
-    test_rmse = np.sqrt(mean_squared_error(y_test, test_pred))
-    r2 = r2_score(y_test, test_pred)
-    mape = mean_absolute_percentage_error(y_test, test_pred)
+    with mlflow.start_run():
+        # train_mae = mean_absolute_error(y_train, train_pred)
+        # train_rmse = np.sqrt(mean_squared_error(y_train, train_pred))
+        
+        # test_mae = mean_absolute_error(y_test, test_pred)
+        # test_rmse = np.sqrt(mean_squared_error(y_test, test_pred))
+        r2 = r2_score(y_test, test_pred)
+        mape = mean_absolute_percentage_error(y_test, test_pred)
+        mlflow.log_metric("Accuracy", r2)
+        mlflow.log_metric("MAPE", mape)
     
     # print(f"Train MAE: {train_mae:.2f}, RMSE: {train_rmse:.2f}")
     # print(f"Test MAE: {test_mae:.2f}, RMSE: {test_rmse:.2f}")
-    print(f"r2: {r2:.2f}")
-    print(f"mape: {mape:.2f}")
+    # print(f"r2: {r2:.2f}")
+    # print(f"mape: {mape:.2f}")
   
     
     # Generate future dates for forecasting
@@ -129,23 +135,23 @@ def save_model(model, filename='./model/forecast_model.pkl'):
     with open(filename, 'wb') as f:
         pickle.dumps(model)
 
-def main():
-    # Load and preprocess data
-    data = load_and_preprocess_data('./data/Coffee Shop Sales.csv')
+# def main():
+#     # Load and preprocess data
+#     data = load_and_preprocess_data('./data/Coffee Shop Sales.csv')
     
-    # Train model and make forecasts
-    model, train_pred, test_pred, forecast, future_dates = train_forecast_model(data)
+#     # Train model and make forecasts
+#     model, train_pred, test_pred, forecast, future_dates = train_forecast_model(data)
     
-    # Plot results
-    plot_results(data, train_pred, test_pred, forecast, future_dates)
+#     # Plot results
+#     plot_results(data, train_pred, test_pred, forecast, future_dates)
     
-    # Save model
-    save_model(model)
+#     # Save model
+#     save_model(model)
     
-    # Print forecast
-    print("\nForecasted Sales:")
-    for date, amount in zip(future_dates, forecast):
-        print(f"{date.date()}: ${amount:.2f}")
+#     # Print forecast
+#     print("\nForecasted Sales:")
+#     for date, amount in zip(future_dates, forecast):
+#         print(f"{date.date()}: ${amount:.2f}")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
