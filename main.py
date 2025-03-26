@@ -1,11 +1,7 @@
 # forecasting_app.py
 import streamlit as st
 import pandas as pd
-import numpy as np
-from xgboost import XGBRegressor
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
 import matplotlib.pyplot as plt
-from datetime import timedelta
 import pickle
 from time_series.pipeline import load_and_preprocess_data, train_forecast_model
 
